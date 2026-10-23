@@ -1,0 +1,66 @@
+plugins {
+    id 'java'
+}
+
+group = 'com.lazysalvaging'
+version = '1.0.0'
+
+repositories {
+    maven {
+        url = 'https://repo.runelite.net'
+        content {
+            includeGroupByRegex('net\\.runelite.*')
+        }
+    }
+    mavenCentral()
+}
+
+def runeLiteVersion = 'latest.release'
+
+dependencies {
+    compileOnly "net.runelite:client:${runeLiteVersion}"
+    testImplementation "net.runelite:client:${runeLiteVersion}"
+    testImplementation "net.runelite:jshell:${runeLiteVersion}"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release.set(11)
+}
+
+tasks.register('run', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.lazysalvaging.LazySalvagingLauncher'
+    jvmArgs '-ea'
+    args '--developer-mode', '--debug'
+}
+
+def regressionTests = [
+    'BagFillTrackerTest', 'BagKnowledgeTest', 'BoatMenuGuardTest',
+    'CargoCounterTest', 'DropMenuSwapTest', 'EventRegistrationTest',
+    'ExtractorHarvestTest', 'ExtractorPreviewTest', 'ExtractorTest',
+    'GuideEngineTest', 'LootPolicyTest', 'ProjectedCargoTest',
+    'SeedBoxTest', 'SeedSelectionTest', 'SeedSettingsTest',
+    'SessionTotalsTest', 'SettingsIntegrationTest', 'WreckAvailabilityTest',
+    'XpToleranceTest'
+]
+
+regressionTests.each { testClass ->
+    def regressionTask = tasks.register("run${testClass}", JavaExec) {
+        dependsOn testClasses
+        classpath = sourceSets.test.runtimeClasspath
+        mainClass = "com.lazysalvaging.${testClass}"
+        jvmArgs '-ea', '-Djava.awt.headless=true'
+    }
+    tasks.named('check') {
+        dependsOn regressionTask
+    }
+}
+
+tasks.named('jar') {
+    from('runelite-plugin.properties')
+    manifest {
+        attributes 'Implementation-Version': project.version
+    }
+}
