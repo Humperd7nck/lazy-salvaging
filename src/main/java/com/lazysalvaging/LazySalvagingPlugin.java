@@ -15,8 +15,7 @@ import javax.inject.Inject;
 @PluginDescriptor(
         name = "Lazy Salvaging",
         description = "Highlights salvaging tasks, loot and the crystal extractor",
-        tags = {"sailing", "salvaging"},
-        enabledByDefault = false)
+        tags = {"sailing", "salvaging"})
 public class LazySalvagingPlugin extends Plugin {
     public static final String VERSION = "1.0.0";
     @Inject private GuideController guide;
