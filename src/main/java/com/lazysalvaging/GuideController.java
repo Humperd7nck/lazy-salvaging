@@ -994,8 +994,7 @@ final class GuideController {
     private Shape objectShape(String name) {
         GameObject o = objects.get(name);
         if (o == null) return null;
-        Shape s = o.getConvexHull();
-        return s != null ? s : o.getCanvasTilePoly();
+        return o.getClickbox();
     }
 
     private Shape bagShape(GuideEngine.Kind kind) {
